@@ -4,7 +4,7 @@
 # keys = Net::HTTP.get(uri)
 # notifies :write, "log[Keys: ${keys}]"
 
-# node[:deploy].each do |app_name, deploy|
+node[:deploy].each do |app_name, deploy|
 
 # 	script "install_composer" do
 # 		interpreter "bash"
@@ -36,6 +36,6 @@
 # 		)
 # 	end		  
 	  
-# end
+end
 
 # notifies :write, "log[Navigate to 'http://#{node[:opsworks][:layers][:lb][:instances].first[:public_dns_name]}/wp-admin/install.php' to complete wordpress installation]"
