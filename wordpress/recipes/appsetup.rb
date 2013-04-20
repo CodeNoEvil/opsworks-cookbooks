@@ -33,7 +33,8 @@ node[:deploy].each do |app_name, deploy|
 			:host			 => (deploy[:database][:host] rescue nil),
 			:keys        	 => (keys rescue nil)
 		)
-		notifies :write, "log[Navigate to 'http://#{node[:opsworks][:layers][:lb][:instances].first[:public_dns_name]}/wp-admin/install.php' to complete wordpress installation]"
 	end		  
 	  
 end
+
+notifies :write, "log[Navigate to 'http://#{node[:opsworks][:layers][:lb][:instances].first[:public_dns_name]}/wp-admin/install.php' to complete wordpress installation]"
