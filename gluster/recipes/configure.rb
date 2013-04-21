@@ -11,7 +11,7 @@ if is_first_node then
 
 		execute "gluster peer probe #{instance[:private_ip]}" do
 			not_if "gluster peer status | grep '^Hostname: #{peer}'" 
-			not_if { peer == node['ipaddress'] }
+			not_if { instance[:private_ip] }
 		end
 	end
 end
