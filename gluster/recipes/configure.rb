@@ -7,20 +7,23 @@ hostname                = node[:opsworks][:instance][:hostname]
 instances               = node[:opsworks][:layers].fetch(layer)[:instances]
 is_first_node           = instances.keys.index(hostname) == 0
 
-# print "AWS Instance ID: #{aws_instance_id}\n"
-# print "Layer: #{layer}\n"
-# print "Keys: #{instances.keys}\n"
-# print "Is First: #{is_first_node}\n"
-# print "Hostname: #{hostname}\n"
+Chef::Log.debug("aws_instance_id: #{aws_instance_id}")
+Chef::Log.debug("layer: #{layer}")
+Chef::Log.debug("instances: #{instances.keys.join(',')}")
+Chef::Log.debug("is_first_node: #{is_first_node}")
+Chef::Log.debug("hostname: #{hostname}")
 
 if is_first_node then
-        instances.each_value do |instance|
-                private_dns_name = instance[:private_dns_name]
-# print "Private IP: #{private_dns_name}\n"
-                execute "peer probing" do
-                        command "echo 'Probing #{private_dns_name}'; gluster peer probe #{private_dns_name}"
-                        not_if "gluster peer status | grep '^Hostname: #{private_dns_name}'"
-                        not_if { instance[:aws_instance_id] == aws_instance_id }
-                end
-        end
+	Chef::Log.info("First Node; Probing peers")
+
+    instances.each_value do |instance|
+            private_dns_name = instance[:private_dns_name]
+			
+			Chef::Log.debug("Peer private_dns_name: #{private_dns_name}")
+            
+            execute "gluster peer probe #{private_dns_name}" do
+                    not_if "gluster peer status | grep '^Hostname: #{private_dns_name}'"
+                    not_if { instance[:aws_instance_id] == aws_instance_id }
+            end
+    end
 end
