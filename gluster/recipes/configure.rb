@@ -4,7 +4,7 @@
 aws_instance_id         = node[:opsworks][:instance][:aws_instance_id]
 layer                   = node[:opsworks][:instance][:layers].first
 hostname                = node[:opsworks][:instance][:hostname]
-instances               = node[:opsworks][:layers].fetch(layer)[:instances]
+instances               = node[:opsworks][:layers].fetch(layer)[:instances].sort_by{ |k,v| v[:booted_at]}
 is_first_node           = instances.keys.index(hostname) == 0
 
 Chef::Log.debug("aws_instance_id: #{aws_instance_id}")
