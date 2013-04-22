@@ -27,4 +27,7 @@ if is_first_node then
                 not_if { instance[:aws_instance_id] == aws_instance_id }
         end
     end
+
+    
+    
 end
