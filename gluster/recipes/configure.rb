@@ -6,7 +6,7 @@ layer                   = node[:opsworks][:instance][:layers].first
 hostname                = node[:opsworks][:instance][:hostname]
 instances               = node[:opsworks][:layers].fetch(layer)[:instances].sort_by{|k,v| v[:booted_at] }
 is_first_node           = instances.index{|i|i[0] == hostname} == 0
-volume_name             = "wordpress"
+volume_name             = node[:gluster][:volume_name]
 
 Chef::Log.debug("aws_instance_id: #{aws_instance_id}")
 Chef::Log.debug("layer: #{layer}")
