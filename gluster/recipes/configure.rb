@@ -9,7 +9,7 @@ is_first_node           = instances.index{|i|i[0] == hostname} == 0
 
 Chef::Log.debug("aws_instance_id: #{aws_instance_id}")
 Chef::Log.debug("layer: #{layer}")
-Chef::Log.debug("instances: #{instances.each{|i| i[0] }.join(',')}")
+Chef::Log.debug("instances: #{instances.each_index{|i| instances[x][0] }.join(',')}")
 Chef::Log.debug("is_first_node: #{is_first_node}")
 Chef::Log.debug("hostname: #{hostname}")
 
