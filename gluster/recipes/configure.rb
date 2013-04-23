@@ -9,10 +9,9 @@ is_first_node           = instances.index{|i|i[0] == hostname} == 0
 
 Chef::Log.debug("aws_instance_id: #{aws_instance_id}")
 Chef::Log.debug("layer: #{layer}")
-Chef::Log.debug("instances: #{instances.each_index{|i| instances[i][0] }.join(',')}")
+Chef::Log.debug("instances: #{instances.map{|i| i[0] }.join(', ')}")
 Chef::Log.debug("is_first_node: #{is_first_node}")
 Chef::Log.debug("hostname: #{hostname}")
-Chef::Log.info("Gluster Volume: #{volume_name}")
 
 if is_first_node then
     Chef::Log.info("First Node; Probing peers")
@@ -33,10 +32,12 @@ if is_first_node then
 
     node[:glusterfs][:server][:volumes].each do |volume_name|
 
+        Chef::Log.info("Gluster Volume: #{volume_name}")
+
         execute "gluster volume setup" do
             not_if "gluster volume info #{volume_name} | grep '^Volume Name: #{volume_name}'"
-            bricks = instances.map{|i| i[:private_dns_name] + ":#{node[:glusterfs][:server][:export_directory]}/" + volume_name}.join(' ')
-            command "gluster volume create #{volume_name} rep #{instances.count} transport tcp #{bricks}"
+            bricks = instances.map{|i| i[1][:private_dns_name] + ":#{node[:glusterfs][:server][:export_directory]}/" + volume_name}.join(' ')
+            command "gluster volume create #{volume_name} replica #{instances.count} transport tcp #{bricks}"
             action :run
         end
 
@@ -44,7 +45,5 @@ if is_first_node then
             not_if "gluster volume info #{volume_name} | grep '^Status: Started'"
             action :run
         end
-
     end
 end
-
