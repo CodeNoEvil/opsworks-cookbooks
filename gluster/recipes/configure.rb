@@ -35,7 +35,7 @@ if is_first_node then
 
         execute "gluster volume setup" do
             not_if "gluster volume info #{volume_name} | grep '^Volume Name: #{volume_name}'"
-            bricks = instances.map{|i| i[:private_dns_name] + ":#{[:glusterfs][:server][:export_directory]}/" + volume_name}.join(' ')
+            bricks = instances.map{|i| i[:private_dns_name] + ":#{node[:glusterfs][:server][:export_directory]}/" + volume_name}.join(' ')
             command "gluster volume create #{volume_name} rep #{instances.count} transport tcp #{bricks}"
             action :run
         end
