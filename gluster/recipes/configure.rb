@@ -6,7 +6,6 @@ layer                   = node[:opsworks][:instance][:layers].first
 hostname                = node[:opsworks][:instance][:hostname]
 instances               = node[:opsworks][:layers].fetch(layer)[:instances].sort_by{|k,v| v[:booted_at] }
 is_first_node           = instances.index{|i|i[0] == hostname} == 0
-volume_name             = node[:gluster][:volume_name]
 
 Chef::Log.debug("aws_instance_id: #{aws_instance_id}")
 Chef::Log.debug("layer: #{layer}")
@@ -32,15 +31,20 @@ if is_first_node then
 
     end
 
-    execute "gluster volume setup" do
-        not_if "gluster volume info #{volume_name} | grep '^Volume Name: #{volume_name}'"
-        bricks = instances.map{|i| i[:private_dns_name] + ":/export/glusterfs/" + volume_name}.join(' ')
-        command "gluster volume create #{volume_name} rep #{instances.count} transport tcp #{bricks}"
-        action :run
-    end
+    node[:glusterfs][:server][:volumes].each do |volume_name|
 
-    execute "gluster volume start #{volume_name}" do
-        not_if "gluster volume info #{volume_name} | grep '^Status: Started'"
-        action :run
+        execute "gluster volume setup" do
+            not_if "gluster volume info #{volume_name} | grep '^Volume Name: #{volume_name}'"
+            bricks = instances.map{|i| i[:private_dns_name] + ":#{[:glusterfs][:server][:export_directory]}/" + volume_name}.join(' ')
+            command "gluster volume create #{volume_name} rep #{instances.count} transport tcp #{bricks}"
+            action :run
+        end
+
+        execute "gluster volume start #{volume_name}" do
+            not_if "gluster volume info #{volume_name} | grep '^Status: Started'"
+            action :run
+        end
+
     end
 end
+
