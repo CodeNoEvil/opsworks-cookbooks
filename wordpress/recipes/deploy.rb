@@ -13,31 +13,31 @@ keys = response.body
 node[:deploy].each do |app_name, deploy|
 
         template "#{deploy[:deploy_to]}/current/composer.json" do
-                source "composer.json.erb"
-                mode 0660
-                group deploy[:group]
+            source "composer.json.erb"
+            mode 0660
+            group deploy[:group]
 
-                if platform?("ubuntu")
-                  owner "www-data"
-                elsif platform?("amazon")
-                  owner "apache"
-                end
+            if platform?("ubuntu")
+              owner "www-data"
+            elsif platform?("amazon")
+              owner "apache"
+            end
         end
 
-        script "install_composer" do
-                interpreter "bash"
-                user "root"
-                cwd "#{deploy[:deploy_to]}/current"
-                code <<-EOH
-                curl -s https://getcomposer.org/installer | php
-                php composer.phar install
-                EOH
+    script "install_composer" do
+            interpreter "bash"
+            user "root"
+            cwd "#{deploy[:deploy_to]}/current"
+            code <<-EOH
+            curl -s https://getcomposer.org/installer | php
+            php composer.phar install
+            EOH
         end
 
         #mount glusterfs share
         absolute_document_root = "#{deploy[:deploy_to]}/current/#{deploy[:document_root]}"
         Chef::Log.debug("absolute_document_root: #{absolute_document_root}")
-        
+
         if not File.directory?(absolute_document_root)
             directory absolute_document_root do
             action :create
@@ -67,11 +67,11 @@ node[:deploy].each do |app_name, deploy|
                 end
 
                 variables(
-                        :database        => (deploy[:database][:database] rescue nil),
-                        :user            => (deploy[:database][:username] rescue nil),
-                        :password        => (deploy[:database][:password] rescue nil),
-                        :host            => (deploy[:database][:host] rescue nil),
-                        :keys            => (keys rescue nil)
+                    :database   => (deploy[:database][:database] rescue nil),
+                    :user       => (deploy[:database][:username] rescue nil),
+                    :password   => (deploy[:database][:password] rescue nil),
+                    :host       => (deploy[:database][:host] rescue nil),
+                    :keys       => (keys rescue nil)
                 )
         end
 
