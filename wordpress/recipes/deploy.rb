@@ -34,7 +34,26 @@ node[:deploy].each do |app_name, deploy|
                 EOH
         end
 
-        template "#{deploy[:deploy_to]}/current/wp-config.php" do
+        #mount glusterfs share
+        absolute_document_root = "#{deploy[:deploy_to]}/current/#{deploy[:document_root]}"
+        if not File.directory?(absolute_document_root)
+            directory absolute_document_root do
+            action :create
+            recursive true
+          end
+        end
+
+        # mount -t glusterfs -o log-level=WARNING,log-file=/var/log/gluster.log 10.200.1.11:/test /mnt
+        layer = node[:opsworks][:instance][:layers].first
+        server =  node[:opsworks][:layers].fetch(layer)[:instances].sort_by{|k,v| v[:booted_at] }[0][1][:private_dns_name]
+        mount mount_to do
+            device "#{server}:/#{app_name}"
+            fstype "glusterfs"
+            options "log-level=WARNING,log-file=/var/log/gluster.log"
+            action :enable
+        end
+
+        template "#{[:absolute_document_root]}/wp-config.php" do
                 source "wp-config.php.erb"
                 mode 0660
                 group deploy[:group]
