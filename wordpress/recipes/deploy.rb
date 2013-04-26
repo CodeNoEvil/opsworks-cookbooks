@@ -55,7 +55,7 @@ node[:deploy].each do |app_name, deploy|
         action :enable
     end
 
-    template "#{[:absolute_document_root]}/wp-config.php" do
+    template "#{absolute_document_root}/wp-config.php" do
         source "wp-config.php.erb"
         mode 0660
         group deploy[:group]
