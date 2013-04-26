@@ -13,7 +13,7 @@ Chef::Log.debug("instances: #{instances.map{|i| i[0] }.join(', ')}")
 Chef::Log.debug("is_first_node: #{is_first_node}")
 Chef::Log.debug("hostname: #{hostname}")
 
-if is_first_node then
+if is_first_node && instances.count > 1 then
     Chef::Log.info("First Node; Probing peers")
 
     instances.each do |i|
