@@ -31,20 +31,20 @@ if is_first_node && instances.count > 1 then
     end
 
     #node[:glusterfs][:server][:volumes].each do |application|
-    node[:deploy].each do |application, deploy|
-
-        Chef::Log.info("Gluster Volume: #{application}")
+    #node[:deploy].each do |application, deploy|
+        volume_name = "www"
+        Chef::Log.info("Gluster Volume: #{volume_name}")
 
         execute "gluster volume setup" do
-            not_if "gluster volume info #{application} | grep '^Volume Name: #{application}'"
-            bricks = instances.map{|i| i[1][:private_dns_name] + ":#{node[:glusterfs][:server][:export_directory]}/" + application}.join(' ')
-            command "gluster volume create #{application} replica #{instances.count} transport tcp #{bricks}"
+            not_if "gluster volume info #{volume_name} | grep '^Volume Name: #{volume_name}'"
+            bricks = instances.map{|i| i[1][:private_dns_name] + ":#{node[:glusterfs][:server][:export_directory]}/" + volume_name}.join(' ')
+            command "gluster volume create #{volume_name} replica #{instances.count} transport tcp #{bricks}"
             action :run
         end
 
-        execute "gluster volume start #{application}" do
-            not_if "gluster volume info #{application} | grep '^Status: Started'"
+        execute "gluster volume start #{volume_name}" do
+            not_if "gluster volume info #{volume_name} | grep '^Status: Started'"
             action :run
         end
-    end
+    #end
 end
