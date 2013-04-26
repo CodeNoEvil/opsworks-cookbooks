@@ -8,3 +8,5 @@ packages.each do |pkg|
     action :install
   end
 end
+
+include_recipe 'wordpress::bind_mounts'
