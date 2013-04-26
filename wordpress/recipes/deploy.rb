@@ -38,12 +38,21 @@ node[:deploy].each do |app_name, deploy|
     absolute_document_root = "#{deploy[:deploy_to]}/current/#{deploy[:document_root]}"
     Chef::Log.debug("absolute_document_root: #{absolute_document_root}")
 
-    if not File.directory?(absolute_document_root)
-        directory absolute_document_root do
-        action :create
+    #if not File.directory?(absolute_document_root)
+    directory "#{absolute_document_root}" do
         recursive true
-      end
+        mode 0660
+        group deploy[:group]
+
+        if platform?("ubuntu")
+          owner "www-data"
+        elsif platform?("amazon")
+          owner "apache"
+        end
+        
+        action :create
     end
+    #end
 
     # mount -t glusterfs -o log-level=WARNING,log-file=/var/log/gluster.log 10.200.1.11:/test /mnt
     layer = node[:opsworks][:instance][:layers].first
